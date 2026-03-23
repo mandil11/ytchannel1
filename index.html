@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D11 Library | Creator Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Sync Loading Screen -->
+    <div id="sync-loader" class="loader-overlay hidden">
+        <div class="spinner"></div>
+        <p class="loader-text">Syncing Database...</p>
+    </div>
+
+    <!-- Login Screen -->
+    <div id="login-screen" class="screen active login-center">
+        <div class="glass-panel login-panel">
+            <div class="logo-container">
+                <div class="yt-logo">D11</div>
+            </div>
+            <h1>D11 Admin</h1>
+            <p>Secure Creator Access</p>
+            <div class="input-group">
+                <input type="password" id="password-input" placeholder="Enter security code" autocomplete="off">
+            </div>
+            <p id="login-error" class="error-msg">Incorrect code. Try again.</p>
+            <button id="login-btn" class="glow-btn">Access Dashboard</button>
+        </div>
+    </div>
+
+    <!-- Main Content Screen -->
+    <div id="main-screen" class="screen app-layout">
+        
+        <!-- Sidebar Navigation (Desktop) / Bottom Nav (Mobile) -->
+        <aside class="sidebar">
+            <div class="nav-brand mb-4 hidden-mobile">
+                <span class="yt-logo-small">D11</span>
+                <span>Library</span>
+            </div>
+            
+            <div class="nav-links">
+                <button class="nav-btn active" data-tab="dashboard">
+                    <span class="icon">📊</span><span class="lbl">Dashboard</span>
+                </button>
+                <button class="nav-btn" data-tab="library">
+                    <span class="icon">📁</span><span class="lbl">Library</span>
+                </button>
+                <button class="nav-btn" data-tab="ideas">
+                    <span class="icon">💡</span><span class="lbl">Ideas</span>
+                </button>
+                <button class="nav-btn hidden-desktop mobile-add-btn" id="mobile-add-btn">
+                    <span class="icon" style="color:var(--accent); font-weight:bold;">+</span><span class="lbl">New Video</span>
+                </button>
+            </div>
+
+            <button id="logout-btn" class="nav-btn logout-btn hidden-mobile mt-auto">
+                <span class="icon">🔒</span><span class="lbl">Lock Session</span>
+            </button>
+        </aside>
+
+        <!-- Main Workspace -->
+        <main class="main-content">
+            
+            <!-- Mobile Top Header -->
+            <div class="mobile-top-header flex-bw hidden-desktop mb-4">
+                <div class="nav-brand">
+                    <span class="yt-logo-small">D11</span>
+                    <span>Library</span>
+                </div>
+                <button id="mobile-logout-btn" class="icon-btn" style="font-size:20px;">🔒</button>
+            </div>
+
+            <!-- Global Search & Actions Header -->
+            <header class="topbar flex-bw mb-4">
+                <div class="global-search search-container glass-panel">
+                    <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    <input type="text" id="global-search-input" placeholder="Search videos...">
+                    <button id="clear-search" class="clear-btn">&times;</button>
+                </div>
+                
+                <button id="open-add-modal" class="glow-btn btn-small hidden-mobile">+ New Video</button>
+            </header>
+
+            <div class="content-wrapper">
+                <!-- Dashboard Tab -->
+                <div id="tab-dashboard" class="tab-content active view-fade">
+                    <div class="dashboard-header mb-4">
+                        <h1 class="gradient-text">Creator Overview</h1>
+                        <p class="subtitle">Welcome back! Real-time channel analytics and goals.</p>
+                    </div>
+
+                    <div class="stats-grid">
+                        <!-- Stat Card 1 -->
+                        <div class="stat-card glass-panel">
+                            <div class="stat-icon channel-icon">YouTube</div>
+                            <h3>Ten Kingdom</h3>
+                            <div class="stat-value">Live Status</div>
+                            <p class="stat-desc">Subscriber count & analytics</p>
+                            <a href="https://youtube.com/@tenkingdom?si=HvbMKJ7xuuDfaHtm" target="_blank" class="primary-btn mt-2 external-link">Launch Channel Out ↗</a>
+                        </div>
+                        
+                        <!-- Stat Card 2 -->
+                        <div class="stat-card glass-panel">
+                            <div class="stat-icon target-icon">🎯</div>
+                            <h3>Weekly Goal</h3>
+                            <div class="stat-value"><span id="weekly-count">0</span> / 7</div>
+                            <p class="stat-desc">Target uploads this week</p>
+                            <div class="progress-bar-bg mt-2">
+                                <div id="weekly-progress" class="progress-bar-fill"></div>
+                            </div>
+                            <p id="weekly-msg" class="weekly-msg">Loading data...</p>
+                        </div>
+
+                        <!-- Stat Card 3 -->
+                        <div class="stat-card glass-panel">
+                            <div class="stat-icon bulb-icon">💡</div>
+                            <h3>Pending Ideas</h3>
+                            <div class="stat-value" id="idea-count-stat">0</div>
+                            <p class="stat-desc">Content waiting to be created</p>
+                            <button class="primary-btn mt-2 goto-ideas-btn">Review Ideas</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Library Tab (Horizontal Boxes) -->
+                <div id="tab-library" class="tab-content view-fade">
+                    <div class="flex-bw mb-4">
+                        <div>
+                            <h1 class="gradient-text">Video Library</h1>
+                            <p class="subtitle">All your published content in one place.</p>
+                        </div>
+                    </div>
+
+                    <div id="search-results-container">
+                        <p id="result-count" class="result-count"></p>
+                        <div id="video-list" class="video-list">
+                            <!-- Horizontal Videos injected via JS -->
+                        </div>
+                        
+                        <div id="not-found-msg" class="not-found hidden glass-panel">
+                            <div class="sad-icon">🔍</div>
+                            <h2>No matches found</h2>
+                            <p>Try tweaking your search terms.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ideas Tab -->
+                <div id="tab-ideas" class="tab-content view-fade">
+                    <div class="flex-bw mb-4">
+                        <div>
+                            <h1 class="gradient-text">Ideas Hub</h1>
+                            <p class="subtitle">Brainstorm and track your upcoming video concepts.</p>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel idea-form-panel mb-4">
+                        <h3 class="mb-2">Jot down a new idea</h3>
+                        <div class="idea-input-row mt-2">
+                            <input type="text" id="new-idea-input" placeholder="What's your next viral video concept?">
+                            <button id="add-idea-btn" class="glow-btn btn-auto">Save to Vault</button>
+                        </div>
+                    </div>
+
+                    <div class="ideas-list" id="ideas-list">
+                        <!-- Ideas will be injected here -->
+                    </div>
+                    
+                    <div id="no-ideas-msg" class="not-found hidden glass-panel">
+                        <div class="sad-icon">🧠</div>
+                        <h2>Your brain vault is empty!</h2>
+                        <p>Start adding brilliant ideas to keep the creativity flowing.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <!-- Add Video Modal -->
+    <div id="add-modal" class="modal-overlay">
+        <div class="glass-panel modal-content">
+            <div class="modal-header">
+                <h2>Add to Library</h2>
+                <button id="close-modal" class="icon-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="input-group">
+                    <label for="new-title">Video Title</label>
+                    <input type="text" id="new-title" placeholder="e.g. My Awesome Vlog Part 2">
+                </div>
+                <div class="input-group">
+                    <label for="new-link">YouTube Video URL</label>
+                    <input type="url" id="new-link" placeholder="https://www.youtube.com/watch?v=...">
+                    <small class="hint">Thumbnail will sync automatically!</small>
+                </div>
+            </div>
+            <div class="modal-footer mt-4 flex-bw">
+                <button id="cancel-add" class="primary-btn" style="flex:1;">Cancel</button>
+                <button id="save-video" class="glow-btn" style="flex:1; margin-left:10px;">Sync Video</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="delete-modal" class="modal-overlay">
+        <div class="glass-panel modal-content" style="max-width: 400px; text-align: center;">
+            <div class="modal-header" style="justify-content: center;">
+                <h2 style="color: #ef4444;">Delete Selection?</h2>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to permanently delete this item? This action cannot be reversed.</p>
+            </div>
+            <div class="modal-footer flex-bw mt-4">
+                <button id="cancel-delete" class="primary-btn" style="flex: 1;">Keep it</button>
+                <button id="confirm-delete" class="glow-btn" style="flex: 1; margin-left:10px; background: linear-gradient(135deg, #ef4444, #991b1b);">Delete Item</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
